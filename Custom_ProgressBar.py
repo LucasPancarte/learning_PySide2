@@ -25,6 +25,12 @@ class ProgressBar(qtw.QStatusBar):
         """
         self.statusLabel.setText(text)
 
+    def set_format_text(self, text):
+        """
+        Set prog bar format text in case it needs to change
+        """
+        self.progressbar.setFormat(" {0} : %v / %m".format(text))
+
     def update_progress(self, step, max_steps):
         """
         Update progress from a value and a maximum value
