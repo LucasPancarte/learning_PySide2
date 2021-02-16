@@ -12,7 +12,6 @@ player.show()
 Learn about QtGui.QImageReader()
 """
 
-from __Learning_PyQt5.pyQt5_window_template import TemplateUi
 from PySide2 import QtCore, QtGui, QtWidgets
 from shiboken2 import wrapInstance
 
@@ -20,10 +19,11 @@ import maya.cmds as mc
 import maya.OpenMaya as om
 import maya.OpenMayaUI as omui
 
-class MoviePlayer(TemplateUi):
+class MoviePlayer(qtw.QDialog):
     WINDOW_TITLE="Gif Player"
     FILE_FILTER = "GIF (*.gif)"
     selected_filter = "GIF (*.gif)"
+    dlg_instance = None
     # fileName = ""
     
     @classmethod
@@ -36,14 +36,34 @@ class MoviePlayer(TemplateUi):
         else:
             cls.dlg_instance.raise_()
             cls.dlg_instance.activateWindow()
+
+    @classmethod
+    def maya_main_window(cls):
+        """ Return Maya main window as Python Object """
+        main_window_ptr = omui.MQtUtil.mainWindow()
+        return wrapInstance(long(main_window_ptr), QtWidgets.QWidget)
             
     def __init__(self, fileName=''):
         self.fileName = fileName
-        super(MoviePlayer, self).__init__()
-        self.setMinimumSize(300, 300)
-        self.geometry = None
+        super(MoviePlayer, self).__init__(parent=self.maya_main_window())
 
+        self.setWindowTitle(self.WINDOW_TITLE)
+        self.setWindowFlags(self.windowFlags() ^ qtc.Qt.WindowContextHelpButtonHint|qtc.Qt.WindowMinMaxButtonsHint)
         
+        self.geometry=None
+        self.setMinimumSize(300, 300)
+
+        self.create_actions()
+        self.create_widgets()
+        self.create_layouts()
+        self.create_connections()
+    
+    def create_actions(self):
+        """
+        Create all actions used by Standalone app
+        """
+        pass
+
     def create_widgets(self):        
         self.movie_screen = QtWidgets.QLabel()
         self.movie_screen.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
@@ -101,7 +121,25 @@ class MoviePlayer(TemplateUi):
 
     def go_to_previous_frame(self): self.movie.jumpToFrame(self.movie.currentFrameNumber()-1)
         
-        
+    # OPEN/CLOSE EVENTS
+    def showEvent(self, e):
+        """
+        Event used on UI startup, 
+        restore size and position if the ui already existed
+        """
+        super(MoviePlayer, self).showEvent(e)
+        if self.geometry:
+            self.restoreGeometry(self.geometry)
+   
+    def closeEvent(self, e):
+        """
+        Event used on UI close
+        saves size and position for the next ui showEvent
+        """
+        if isinstance(self, MoviePlayer):
+            super(MoviePlayer, self).closeEvent(e)
+            self.geometry = self.saveGeometry()    
+
 
 if __name__ == "__main__":
 
