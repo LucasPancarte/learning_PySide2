@@ -76,9 +76,12 @@ class TreeWidgetWithWidgetItems(QDialog):
 
         self.childItems = []
 
-        for i in range(4):
+        for i in range(3):
             self.childItems.append(QTreeWidgetItem(["Child : %s" % i, "", ""]))
             self.topLevelItem.addChild(self.childItems[i])
+
+        self.childItems.append(QTreeWidgetItem(["Bottom Child", "", ""]))
+        self.childItems[2].addChild(self.childItems[-1])
 
         self.treeWidget.addTopLevelItem(self.topLevelItem)
         self.treeWidget.setItemWidget(self.topLevelItem, 2, self.topLevelButton)
@@ -86,9 +89,9 @@ class TreeWidgetWithWidgetItems(QDialog):
         # Replacing the child items with widgets
         self.treeWidget.setItemWidget(self.childItems[0], 1, self.childButton_01)
         self.treeWidget.setItemWidget(self.childItems[0], 2, self.childLineEdit_01)
-        self.treeWidget.setItemWidget(self.childItems[1], 2, self.internet_link)
+        self.treeWidget.setItemWidget(self.childItems[1], 2, self.childLineEdit_02)
         self.treeWidget.setItemWidget(self.childItems[2], 2, self.explorer_link)
-        self.treeWidget.setItemWidget(self.childItems[3], 2, self.childLineEdit_02)
+        self.treeWidget.setItemWidget(self.childItems[3], 2, self.internet_link)
 
         # Connecting the widgets with corresponding slots
         self.topLevelButton.clicked.connect(self.top_button_clicked)
