@@ -43,11 +43,12 @@ class CustomWidget(QWidget):
         # self.main_layout.addWidget(self.line_edit)  
 
 class TreeWidgetWithWidgetItems(QDialog):
-    folder_link = "X:\\Main\\data\\Personal\\lpancarte\\Meshio_dev_tests\\"
+    folder_link = "C:\\Users\\Public"
     website_link = "https://www.google.com"
 
     def __init__(self, parent=MaxPlus.GetQMaxMainWindow()):
         super(TreeWidgetWithWidgetItems, self).__init__(parent)
+        self.setWindowTitle("QTreeWidget With Custom Widgets")
         self.init_ui()
 
     def init_ui(self):
@@ -100,7 +101,6 @@ class TreeWidgetWithWidgetItems(QDialog):
         self.childLineEdit_02.textEdited.connect(self.child_lineedit_02_edited)
 
         # Setting the layout
-        self.setWindowTitle("QTreeWidget With Custom Widgets")
         self.setLayout(self.vboxLayout)
 
     # Connects

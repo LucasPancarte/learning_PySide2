@@ -10,7 +10,7 @@ def maya_main_window():
     main_window_ptr = omui.MQtUtil.mainWindow()
     return wrapInstance(long(main_window_ptr), QtWidgets.QWidget)
 
-class TreeViewDialog(QtWidgets.QDialog):
+class TreeViewDialog(QtWidgets.QMainWindow):
     WINDOW_TITLE = "Tree View "
     dlg_instance = None
     # don't use reload() if you want to keep ui position
