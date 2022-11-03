@@ -3,19 +3,22 @@ from PySide2 import QtCore as qtc
 from PySide2 import QtGui as qtg
 
 
+import MaxPlus
+import pymxs
+
 class CollapsibleArrow(qtw.QFrame):
+
+    h_poly = [qtc.QPoint(4.0, 8.0), qtc.QPoint(20.0, 8.0), qtc.QPoint(12.0, 16.0)]
+    v_poly = [qtc.QPoint(8.0, 4.0), qtc.QPoint(16.0, 12.0), qtc.QPoint(8.0, 20.0)]
 
     def __init__(self, parent=None):
         super(CollapsibleArrow, self).__init__(parent)
         
         self.isCollapsed = False
         self.setFixedSize(22, 22)
-        
-        h_poly = [qtc.QPoint(4.0, 8.0), qtc.QPoint(20.0, 8.0), qtc.QPoint(12.0, 16.0)]
-        v_poly = [qtc.QPoint(8.0, 4.0), qtc.QPoint(16.0, 12.0), qtc.QPoint(8.0, 20.0)]
 
-        self.h_arrow = qtg.QPolygon(h_poly)
-        self.v_arrow = qtg.QPolygon(v_poly)
+        self.h_arrow = qtg.QPolygon(CollapsibleArrow.h_poly)
+        self.v_arrow = qtg.QPolygon(CollapsibleArrow.v_poly)
         self.arrow_is_pointing = self.h_arrow
         
     def setArrow(self, arrowDir):
@@ -29,8 +32,9 @@ class CollapsibleArrow(qtw.QFrame):
         painter.drawPolygon(self.arrow_is_pointing)
         painter.end()
 
-
 class CollapsableWidget(qtw.QWidget):
+
+    fixed_height = 30
 
     def __init__(self, parent=None, label="", is_collapsed=True):
         super(CollapsableWidget, self).__init__(parent)
@@ -38,7 +42,7 @@ class CollapsableWidget(qtw.QWidget):
         self.is_collapsed = is_collapsed
 
         self.label = qtw.QLabel(label)
-        self.label.setFixedHeight(30)
+        self.label.setFixedHeight(CollapsableWidget.fixed_height)
 
         self.arrow = CollapsibleArrow()
         
@@ -48,7 +52,6 @@ class CollapsableWidget(qtw.QWidget):
 
         self.f_layout = qtw.QVBoxLayout()
         self.title_frame = qtw.QFrame()
-        self.title_frame.setStyleSheet("QFrame { border: 1px solid black; }")
         self.title_frame.setLayout(self.f_layout)
         
         self.main_layout = qtw.QVBoxLayout(self)
@@ -64,7 +67,8 @@ class CollapsableWidget(qtw.QWidget):
         self.arrow.setArrow(not self.is_collapsed)
 
     def mousePressEvent(self, event):
-        self.emit(qtc.SIGNAL('clicked()'))
+        if event.pos().y()<=CollapsableWidget.fixed_height:
+            self.set_collapsed()
         return super(CollapsableWidget, self).mousePressEvent(event)
 
     def add_widget(self, widget):
@@ -76,16 +80,20 @@ class CollapsableWidget(qtw.QWidget):
 
 
 # USAGE
-"""
-class MyUI(qtw.QDialog):
+if __name__=='__main__':
+    class MyUI(qtw.QDialog):
 
-    def __init__(self, parent=None):
-        supper(MyUI, self).__init__(parent)
-        
-        self.callapsable = CollapsableWidget(label="Testing Widget :")
-        self.main_layout = qtw.QVBoxLayout(self)
-        self.main_layout.addWidget(self.callapsable)
+        def __init__(self, parent=MaxPlus.GetQMaxMainWindow()):
+            super(MyUI, self).__init__(parent)
+            
+            self.collapsible = CollapsableWidget(label="Testing Widget :")
+            for i in range(5):
+                self.collapsible.add_widget(CollapsableWidget(label="Test widget {}".format(i)))
 
-        qtc.QObject.connect(self.callapsable, qtc.SIGNAL('clicked()'), self.callapsable.set_collapsed)
+            self.main_layout = qtw.QVBoxLayout(self)
+            self.main_layout.addWidget(self.collapsible)
+            self.main_layout.addStretch()
 
-"""
+
+    collapsible_ui = MyUI()
+    collapsible_ui.show()

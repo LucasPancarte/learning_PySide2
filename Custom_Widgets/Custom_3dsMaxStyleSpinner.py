@@ -1,4 +1,62 @@
-class QSpinner3DS(qtw.QDoubleSpinBox):
+class QIntSpinner3DS(qtw.QSpinBox):
+    """
+    Custom QDoubleSpinBox widget mimicking 3dsMax style "UI Spinner Controls"
+    initialize with : size, step, default_value, parent
+    """
+    def __init__(self, size, step=1, default_value=0, parent=None):
+        """
+        Initialization
+        """
+        super(QIntSpinner3DS, self).__init__(parent)
+
+        self.size = size
+        self.step = step
+        self.default_value = default_value
+        self.mouseStartPosY = 0
+        self.startValue = 0
+        self.current_value = 0
+
+        self.setMaximumSize(self.size)
+        self.setSingleStep(self.step)
+        self.setValue(self.default_value)
+
+    # Mouse Event Handlers
+    def mousePressEvent(self, event):
+        """
+        Re-define mousePressEvent to implement right-click/left-click
+        """ 
+        if event.type() == qtc.QEvent.MouseButtonPress:
+            if event.button() == qtc.Qt.LeftButton:
+                self.mouseStartPosY = event.pos().y()
+                self.startValue = self.value()
+
+            elif event.button() == qtc.Qt.MidButton:
+                self.set_value_to_default()
+
+    def mouseMoveEvent(self, event):
+        """
+        Re-define mouseMoveEvent to implement left-click and drag (3dsMax style spinners)
+        """
+        self.setCursor(qtc.Qt.SizeVerCursor)
+
+        multiplier = self.singleStep()
+        valueOffset = ((self.mouseStartPosY - event.pos().y()) * multiplier)
+        value = self.startValue + valueOffset
+
+        if value != self.current_value:
+            self.current_value = value
+            self.setValue(self.current_value)
+
+    def mouseReleaseEvent(self, event):
+        """
+        Re-define mouseReleaseEvent to implement left-click and drag (3dsMax style spinners)
+        """
+        super(QIntSpinner3DS, self).mousePressEvent(event)
+        super(QIntSpinner3DS, self).mouseReleaseEvent(event)
+        self.unsetCursor()
+
+
+class QFloatSpinner3DS(qtw.QDoubleSpinBox):
     """
     Custom button widget added right-click event, 
     initialize with : size, step

@@ -10,17 +10,17 @@ from PySide2 import QtCore as qtc
 class StandaloneApp(qtw.QDialog):
 
     WINDOW_TITLE = 'Standalone App'
-
+    INSTANCE = None
     @classmethod
-    def show_dialog(cls):
-        if not cls.dlg_instance:
-            cls.dlg_instance = StandaloneApp()
+    def show_dialog(cls, *args, **kwargs):
+        if cls.INSTANCE is None or type(cls.INSTANCE) is not StandaloneApp:
+            cls.INSTANCE = StandaloneApp(*args, **kwargs)
             
-        if cls.dlg_instance.isHidden():
-            cls.dlg_instance.show()
+        if cls.INSTANCE.isHidden():
+            cls.INSTANCE.show()
         else:
-            cls.dlg_instance.raise_()
-            cls.dlg_instance.activateWindow()
+            cls.INSTANCE.raise_()
+            cls.INSTANCE.activateWindow()
 
     def __init__(self, parent=None):
         super(StandaloneApp, self).__init__(parent)
@@ -85,9 +85,9 @@ class StandaloneApp(qtw.QDialog):
 if __name__ == '__main__':
     # Create the Qt Application
     app = qtw.QApplication(sys.argv)
+
     # Create and show the form
-    ranApp = StandaloneApp()
-    ranApp.show()
+    StandaloneApp.show_dialog()
 
     # Run the main Qt loop
     sys.exit(app.exec_())

@@ -3,20 +3,20 @@ from PySide2 import QtCore as qtc
 from PySide2 import QtGui as qtg
 
 
-class Buttons(qtw.QPushButton):
+class Button(qtw.QPushButton):
     """
-    Custom button widget added right-click event, 
+    Custom button widget added right/left/middle-click event, 
     initialize with : label, icon_path, size
     """
-    rightClicked = Signal()
-    middleClicked = Signal()
+    leftClicked = qtc.Signal(qtc.QEvent)
+    rightClicked = qtc.Signal(qtc.QEvent)
+    middleClicked = qtc.Signal(qtc.QEvent)
 
-    def __init__(self, size, label=None, icon=None) #, rc_event=None, lc_event=None, mc_event=None):
+    def __init__(self, size, label=None, icon=None): #, rc_event=None, lc_event=None, mc_event=None):
         """
         Initialization
-
         """
-        super(Buttons, self).__init__()
+        super(Button, self).__init__()
 
         self.label = label
         self.icon = icon
@@ -36,10 +36,13 @@ class Buttons(qtw.QPushButton):
         """ 
         if event.type() == qtc.QEvent.MouseButtonPress:
             if event.button() == qtc.Qt.LeftButton:
-                super(Buttons, self).mousePressEvent(event)
+                self.leftClicked.emit(event)
             
             elif event.button() == qtc.Qt.RightButton:
-                self.rightClicked.emit()
+                self.rightClicked.emit(event)
 
             elif event.button() == qtc.Qt.MidButton:
-                self.middleClicked.emit()
+                self.middleClicked.emit(event)
+
+            else:
+                super(Button, self).mousePressEvent(event)

@@ -1,49 +1,46 @@
-# -*- coding: utf-8 -*-
-
-import re
-import sys
-import random
-
 from PySide2 import QtWidgets as qtw
 from PySide2 import QtGui as qtg
 from PySide2 import QtCore as qtc
 
-class StandaloneApp(qtw.QDialog):
+import pymxs
+from pymxs import runtime as rt
+import MaxPlus
 
-    WINDOW_TITLE = 'Standalone App'
+
+class StandaloneApp(qtw.QDialog):
+    WINDOW_TITLE = 'Test Switch StyleSheet'
     dlg_instance = None
     style_sheet = None
+
+    all_widgets = list()
+    on_off = False
 
     @classmethod
     def show_dialog(cls):
         if not cls.dlg_instance:
             cls.dlg_instance = StandaloneApp()
-            
+
         if cls.dlg_instance.isHidden():
             cls.dlg_instance.show()
         else:
             cls.dlg_instance.raise_()
             cls.dlg_instance.activateWindow()
 
-    def __init__(self, parent=None, style_sheet=None):
+    def __init__(self, parent=MaxPlus.GetQMaxMainWindow(), style_sheet=None):
         super(StandaloneApp, self).__init__(parent)
 
         self.setWindowTitle(self.WINDOW_TITLE)
-        self.setWindowFlags(self.windowFlags() ^ qtc.Qt.WindowContextHelpButtonHint|qtc.Qt.WindowMinMaxButtonsHint)
+        self.setWindowFlags(self.windowFlags() ^ qtc.Qt.WindowContextHelpButtonHint | qtc.Qt.WindowMinMaxButtonsHint)
 
-        if style_sheet:
-            self.style_sheet = style_sheet
-            self.setStyleSheet(self.style_sheet)
-
-        self.setMinimumSize(500, 200)
-
-        self.geometry=None
+        self.geometry = None
 
         self.create_actions()
         self.create_widgets()
         self.create_layouts()
         self.create_connections()
-    
+
+        self._on_button_pressed()
+
     # UI CREATION
     def create_actions(self):
         """
@@ -55,30 +52,61 @@ class StandaloneApp(qtw.QDialog):
         """
         Create all widgets used by Standalone app
         """
-        pass
+        for i in range(5):
+            the_lineEdit = qtw.QLineEdit()
+            the_lineEdit.setPlaceholderText("I am LineEdit {num}".format(num=i))
+            self.all_widgets.append(the_lineEdit)
+
+        # self.the_button = qtw.QPushButton('I am a Button')
+        # self.the_button.setMinimumHeight(50)
+
 
     def create_layouts(self):
         """
         Creates all layouts used by Standalone app and adds all widgets to them
         """
-        main_layout = qtw.QVBoxLayout(self)
+        self.main_layout = qtw.QVBoxLayout(self)
+        for i in range(5):
+            self.main_layout.addWidget(self.all_widgets[i])
+
+        # self.main_layout.addWidget(self.the_button)
 
     def create_connections(self):
         """
         Creates all connections between widgets and functions for Standalone app
         """
-        pass
+        for widget in self.all_widgets:
+            widget.textChanged.connect(self._on_button_pressed)
+        # self.the_button.clicked.connect(self._on_button_pressed)
+
+    def _on_button_pressed(self):
+        # print("[_on_button_pressed] - All widgets : {widgets}".format(widgets=self.all_widgets))
+        for widget in self.all_widgets:
+            if widget.text()!="" and len(widget.text().strip())>0:
+                widget.setStyleSheet('')
+                    
+            else:
+                widget.setStyleSheet(#'background-color: red;'
+                                    'border-style: outset;'
+                                    'border-width: 2px;'
+                                    # 'border-radius: 10px;'
+                                    'border-color: yellow;'
+                                    # 'font: bold 14px;'
+                                    # 'min-width: 10em;'
+                                    # 'padding: 6px;'
+                                    )
+
 
     # OPEN/CLOSE EVENTS
     def showEvent(self, e):
         """
-        Event used on UI startup, 
+        Event used on UI startup,
         restore size and position if the ui already existed
         """
         super(StandaloneApp, self).showEvent(e)
         if self.geometry:
             self.restoreGeometry(self.geometry)
-   
+
     def closeEvent(self, e):
         """
         Event used on UI close
@@ -89,28 +117,27 @@ class StandaloneApp(qtw.QDialog):
             self.geometry = self.saveGeometry()
 
 
-
 if __name__ == '__main__':
     #FOR STANDALONE APP
     # Create the Qt Application
-    app = qtw.QApplication(sys.argv)
+    # app = qtw.QApplication(sys.argv)
     # Create and show the form
-    ranApp = StandaloneApp()
-    ranApp.show()
+    # ranApp = StandaloneApp()
+    # ranApp.show()
 
     # Run the main Qt loop
-    sys.exit(app.exec_())
+    # sys.exit(app.exec_())
 
     #FOR DCC APP
-    # try:    
-    #     template_ui.close()
-    #     template_ui.deleteLater()
-    # except:
-    #     pass
-        
-    # template_ui = StandaloneApp()
-    # template_ui.show_dialog()
+    rt.clearListener()
+    try:
+        template_ui.close()
+        template_ui.deleteLater()
+    except:
+        pass
 
+    template_ui = StandaloneApp()
+    template_ui.show_dialog()
 
 ### DCC SPECIFICS
 # MAYA
